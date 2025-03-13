@@ -1,0 +1,159 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_SEATS 30
+#define TICKET_PRICE 500 
+
+struct Ticket {
+    int seatNumber;
+    char passengerName[50];
+    int isBooked; 
+    int isPaid;   
+};
+
+// MODULE 1: DISPLAY SEATS
+void displaySeats(struct Ticket bus[]) {
+    printf("\nAvailable Seats: \n");
+    printf("Seat Number   Passenger Name   Payment Status\n");
+    for (int i = 0; i < MAX_SEATS; i++) {
+        if (bus[i].isBooked == 0) {
+            printf("%d            Available        -\n", bus[i].seatNumber);
+        } else {
+            printf("%d            %s         %s\n", 
+                bus[i].seatNumber, 
+                bus[i].passengerName, 
+                bus[i].isPaid ? "Paid" : "Not Paid");
+        }
+    }
+}
+
+// MODULE 2: BOOK A TICKET WITH PAYMENT
+void bookTicket(struct Ticket bus[]) {
+    int seat;
+    char name[50];
+    
+    printf("\nEnter seat number you want to book (1 to %d): ", MAX_SEATS);
+    scanf("%d", &seat);
+
+    if (seat < 1 || seat > MAX_SEATS) {
+        printf("Invalid seat number. Try again.\n");
+        return;
+    }
+
+    if (bus[seat - 1].isBooked == 1) {
+        printf("Sorry, this seat is already booked.\n");
+    } else {
+        printf("Enter passenger name: ");
+        getchar(); 
+        fgets(name, 50, stdin);
+        name[strcspn(name, "\n")] = '\0'; 
+
+        printf("Ticket Price: ₹%d\n", TICKET_PRICE);
+        printf("Do you want to proceed with the payment? (1 for Yes, 0 for No): ");
+        int paymentChoice;
+        scanf("%d", &paymentChoice);
+
+        if (paymentChoice == 1) {
+            bus[seat - 1].isBooked = 1;
+            bus[seat - 1].isPaid = 1; 
+            strcpy(bus[seat - 1].passengerName, name);
+            printf("Ticket booked successfully for %s on seat %d. Payment Done!\n", name, seat);
+        } else {
+            printf("Booking cancelled as payment was not made.\n");
+        }
+    }
+}
+
+// MODULE 3: CANCEL A TICKET
+void cancelTicket(struct Ticket bus[]) {
+    int seat;
+    printf("\nEnter seat number to cancel booking (1 to %d): ", MAX_SEATS);
+    scanf("%d", &seat);
+
+    if (seat < 1 || seat > MAX_SEATS) {
+        printf("Invalid seat number. Try again.\n");
+        return;
+    }
+
+    if (bus[seat - 1].isBooked == 1) {
+        printf("Booking for seat %d has been cancelled. ", seat);
+        if (bus[seat - 1].isPaid == 1) {
+            printf("Refund of ₹%d has been processed.\n", TICKET_PRICE);
+        } else {
+            printf("No payment was made, so no refund.\n");
+        }
+        bus[seat - 1].isBooked = 0;
+        bus[seat - 1].isPaid = 0;
+    } else {
+        printf("This seat is not booked.\n");
+    }
+}
+
+// MODULE 4: SEARCH FOR A TICKET
+void searchTicket(struct Ticket bus[]) {
+    char name[50];
+    printf("\nEnter passenger name to search: ");
+    getchar(); 
+    fgets(name, 50, stdin);
+    name[strcspn(name, "\n")] = '\0';
+
+    int found = 0;
+    for (int i = 0; i < MAX_SEATS; i++) {
+        if (bus[i].isBooked == 1 && strcmp(bus[i].passengerName, name) == 0) {
+            printf("Ticket found! Seat Number: %d, Passenger Name: %s, Payment Status: %s\n", 
+                   bus[i].seatNumber, bus[i].passengerName, bus[i].isPaid ? "Paid" : "Not Paid");
+            found = 1;
+            break;
+        }
+    }
+    if (!found) {
+        printf("No booking found for %s.\n", name);
+    }
+}
+
+// MAIN FUNCTION
+int main() {
+    struct Ticket bus[MAX_SEATS];
+    int choice;
+
+    
+    for (int i = 0; i < MAX_SEATS; i++) {
+        bus[i].seatNumber = i + 1;
+        bus[i].isBooked = 0;
+        bus[i].isPaid = 0;
+    }
+
+    while (1) {
+        printf("\nBus Ticket Reservation System\n");
+        printf("1. Display Seats\n");
+        printf("2. Book a Ticket\n");
+        printf("3. Cancel a Ticket\n");
+        printf("4. Search for Ticket by Passenger Name\n");
+        printf("5. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                displaySeats(bus);
+                break;
+            case 2:
+                bookTicket(bus);
+                break;
+            case 3:
+                cancelTicket(bus);
+                break;
+            case 4:
+                searchTicket(bus);
+                break;
+            case 5:
+                printf("Exiting system. Thank you!\n");
+                exit(0);
+            default:
+                printf("Invalid choice. Try again.\n");
+        }
+    }
+
+    return 0;
+}
